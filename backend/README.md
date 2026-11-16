@@ -2,29 +2,6 @@
 
 API REST do TaskPilot, desenvolvida com **Python, Django e Django REST Framework**.
 
-## Status atual
-
-### Commit 01 — Configuração do ambiente
-- Estrutura inicial do Django e Django REST Framework.
-- Configuração de CORS e variáveis de ambiente com `python-dotenv`.
-- Criação do aplicativo `core` e endpoint `GET /api/status/`.
-- Configuração das dependências em `requirements.txt`.
-
-### Commit 02 — Usuários e autenticação JWT
-- Criação do aplicativo `users` e organização das rotas da API.
-- Configuração de autenticação JWT com `SimpleJWT`.
-- Implementação de cadastro de usuários com validação de e-mail e senha.
-- Implementação de login e renovação de tokens.
-- Criação do endpoint protegido para consulta do usuário autenticado.
-- Configuração de permissões e proteção dos endpoints.
-
-**Endpoints disponíveis:**
-- `GET /api/status/` — Verificar status da API.
-- `POST /api/auth/register/` — Cadastrar usuário.
-- `POST /api/auth/login/` — Realizar login e obter tokens JWT.
-- `POST /api/auth/refresh/` — Renovar token de acesso.
-- `GET /api/auth/me/` — Consultar usuário autenticado.
-
 ## Como executar
 
 **1.** Acesse a pasta do backend:
@@ -75,3 +52,35 @@ Endpoint de teste: http://localhost:8000/api/status/
   "app": "TaskPilot"
 }
 ```
+
+## Status atual
+
+### Commit 01 — Configuração do ambiente
+- Estrutura inicial do Django e Django REST Framework.
+- Configuração de CORS e variáveis de ambiente com `python-dotenv`.
+- Criação do aplicativo `core` e endpoint `GET /api/status/`.
+- Configuração das dependências em `requirements.txt`.
+
+### Commit 02 — Usuários e autenticação JWT
+- Criação do aplicativo `users` e organização das rotas da API.
+- Configuração de autenticação JWT com `SimpleJWT`.
+- Implementação de cadastro de usuários com validação de e-mail e senha.
+- Implementação de login e renovação de tokens.
+- Criação do endpoint protegido para consulta do usuário autenticado.
+- Configuração de permissões e proteção dos endpoints.
+
+**Endpoints disponíveis:**
+- `GET /api/status/` — Verificar status da API.
+- `POST /api/auth/register/` — Cadastrar usuário.
+- `POST /api/auth/login/` — Realizar login e obter tokens JWT.
+- `POST /api/auth/refresh/` — Renovar token de acesso.
+- `GET /api/auth/me/` — Consultar usuário autenticado.
+
+### Commit 03 — Modelos de Projetos e Tarefas
+- Criação do aplicativo `projects` e registro no Django.
+- Implementação dos modelos `Project` e `Task`, com relacionamento entre usuários, projetos e tarefas.
+- Definição de status, prioridades e tamanhos de tarefas com `TextChoices`.
+- Criação dos serializers com validação de dados e permissões de associação.
+- Registro dos modelos no Django Admin.
+- Criação e aplicação das migrações no banco de dados.
+- Testes de criação e relacionamento dos modelos realizados com sucesso pelo Django Shell.
