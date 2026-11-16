@@ -4,15 +4,26 @@ API REST do TaskPilot, desenvolvida com **Python, Django e Django REST Framework
 
 ## Status atual
 
-**Commit inicial — Configuração do ambiente**
+### Commit 01 — Configuração do ambiente
+- Estrutura inicial do Django e Django REST Framework.
+- Configuração de CORS e variáveis de ambiente com `python-dotenv`.
+- Criação do aplicativo `core` e endpoint `GET /api/status/`.
+- Configuração das dependências em `requirements.txt`.
 
-- Estrutura inicial do projeto Django criada.
-- Django REST Framework configurado.
-- Configuração de CORS para comunicação com o frontend React.
-- Variáveis de ambiente configuradas com `python-dotenv`.
-- Criação do aplicativo `core`.
-- Implementação do endpoint `GET /api/status/` para verificar o funcionamento da API.
-- Configuração inicial das dependências em `requirements.txt`.
+### Commit 02 — Usuários e autenticação JWT
+- Criação do aplicativo `users` e organização das rotas da API.
+- Configuração de autenticação JWT com `SimpleJWT`.
+- Implementação de cadastro de usuários com validação de e-mail e senha.
+- Implementação de login e renovação de tokens.
+- Criação do endpoint protegido para consulta do usuário autenticado.
+- Configuração de permissões e proteção dos endpoints.
+
+**Endpoints disponíveis:**
+- `GET /api/status/` — Verificar status da API.
+- `POST /api/auth/register/` — Cadastrar usuário.
+- `POST /api/auth/login/` — Realizar login e obter tokens JWT.
+- `POST /api/auth/refresh/` — Renovar token de acesso.
+- `GET /api/auth/me/` — Consultar usuário autenticado.
 
 ## Como executar
 

@@ -16,10 +16,14 @@ Including another URLconf
 """
 
 from django.contrib import admin
-from django.urls import path
-from core.views import status
+from django.urls import path, include
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("api/status/", status),
+
+    # Rotas do core
+    path("api/", include("core.urls")),
+
+    # Rotas de autenticação
+    path("api/auth/", include("users.urls")),
 ]
