@@ -27,6 +27,9 @@ urlpatterns = [
     # Rotas de autenticação
     path("api/auth/", include("users.urls")),
 
-    # Rotar Projetos
+    # Rotas Projetos
     path("api/", include("projects.urls")),
+
+    # Rotas Gemmini
+    path("api/ai/", include("ai.urls")),
 ]
