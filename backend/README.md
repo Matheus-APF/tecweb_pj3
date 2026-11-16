@@ -2,7 +2,7 @@
 
 API REST do **TaskPilot**, uma plataforma de gerenciamento de projetos e tarefas com planejamento automatizado por Inteligência Artificial.
 
-Desenvolvido com **Python, Django REST Framework e Google Gemini**, o backend gerencia autenticação, projetos, tarefas e geração de planejamentos personalizados.
+Desenvolvido com **Python, Django REST Framework e Google Gemini**, o backend gerencia autenticação, projetos, tarefas e geração de planejamentos personalizados, com controle de consumo da IA e testes automatizados.
 
 ## Tecnologias
 
@@ -12,8 +12,10 @@ Desenvolvido com **Python, Django REST Framework e Google Gemini**, o backend ge
 - **Google Gemini API** — Geração de planejamentos com IA.
 - **Pydantic** — Validação de respostas estruturadas.
 - **SQLite** — Banco de dados local.
-- **django-cors-headers** — Comunicação com o frontend React.
+- **django-cors-headers** — Integração com o frontend React.
 - **python-dotenv** — Gerenciamento de variáveis de ambiente.
+- **pytest / pytest-django** — Testes automatizados.
+- **GitHub Actions** — Integração contínua.
 
 ---
 
@@ -51,9 +53,7 @@ pip install -r requirements.txt
 
 ### 4. Configurar variáveis de ambiente
 
-Crie o arquivo `.env` com base no `.env.example`.
-
-Configure a chave do Django, a chave da API Gemini e os limites de utilização da IA.
+Crie o arquivo `.env` com base no `.env.example`, configurando a chave do Django, a chave da API Gemini e os limites de utilização da IA.
 
 ### 5. Aplicar as migrações
 
@@ -91,15 +91,14 @@ Resposta esperada:
 | GET | `/api/status/` | Verificar status da API |
 | POST | `/api/auth/register/` | Cadastrar usuário |
 | POST | `/api/auth/login/` | Obter tokens JWT |
-| POST | `/api/auth/refresh/` | Renovar token de acesso |
+| POST | `/api/auth/refresh/` | Renovar token |
 | GET | `/api/auth/me/` | Consultar usuário autenticado |
 
 ### Projetos
 
 | Método | Endpoint | Descrição |
 |---|---|---|
-| GET | `/api/projects/` | Listar projetos |
-| POST | `/api/projects/` | Criar projeto |
+| GET / POST | `/api/projects/` | Listar e criar projetos |
 | GET | `/api/projects/{id}/` | Consultar projeto |
 | PATCH | `/api/projects/{id}/` | Atualizar projeto |
 | DELETE | `/api/projects/{id}/` | Excluir projeto e tarefas |
@@ -108,21 +107,22 @@ Resposta esperada:
 
 | Método | Endpoint | Descrição |
 |---|---|---|
-| GET | `/api/projects/{id}/tasks/` | Listar tarefas do projeto |
-| POST | `/api/projects/{id}/tasks/` | Criar tarefa |
+| GET / POST | `/api/projects/{id}/tasks/` | Listar e criar tarefas |
 | GET | `/api/tasks/{id}/` | Consultar tarefa |
 | PATCH | `/api/tasks/{id}/` | Atualizar tarefa ou status |
 | DELETE | `/api/tasks/{id}/` | Excluir tarefa |
 
-### Gemmini
+### Inteligência Artificial
 
 | Método | Endpoint | Descrição |
 |---|---|---|
 | POST | `/api/ai/generate-plan/` | Gerar planejamento com Gemini |
 
-**Autenticação:** Os endpoints de projetos, tarefas e IA exigem JWT no cabeçalho:
+**Autenticação:** os endpoints de projetos, tarefas e IA exigem JWT:
 
-`Authorization: Bearer <access_token>`
+```http
+Authorization: Bearer <access_token>
+```
 
 Cada usuário possui acesso somente aos próprios projetos e tarefas.
 
@@ -134,109 +134,145 @@ Cada usuário possui acesso somente aos próprios projetos e tarefas.
 
 ```text
 backend/
-├── config/              # Configurações e rotas globais
-├── core/                # Endpoint de status
-├── users/               # Cadastro e autenticação JWT
-├── projects/            # Modelos, serializers e CRUD
+├── config/           # Configurações e rotas globais
+├── core/             # Endpoint de status
+├── users/            # Cadastro e autenticação JWT
+├── projects/         # Modelos, serializers e CRUD
 ├── ai/
-│   ├── models.py        # Histórico de consumo de tokens
-│   ├── schemas.py       # Contratos JSON com Pydantic
-│   ├── serializers.py   # Validação das requisições
-│   ├── prompts.py       # Instruções e prompts da IA
-│   ├── services.py      # Integração com Gemini
-│   ├── scheduling.py    # Cálculo de datas e horas
-│   ├── views.py         # Endpoint e controle de quotas
-│   ├── urls.py          # Rotas da IA
-│   └── limits.py        # Reservado para limites
+│   ├── models.py     # Histórico de consumo de tokens
+│   ├── schemas.py    # Contratos JSON com Pydantic
+│   ├── serializers.py
+│   ├── prompts.py    # Instruções da IA
+│   ├── services.py   # Integração com Gemini
+│   ├── scheduling.py # Cálculo de cronogramas
+│   ├── views.py      # Endpoint e controle de quotas
+│   ├── urls.py
+│   └── limits.py
+├── reports/          # Relatórios de testes
 ├── manage.py
+├── run_tests.ps1
 ├── requirements.txt
 └── .env.example
 ```
 
 ### Fluxo de geração com IA
 
-1. O usuário envia um objetivo, prazo e disponibilidade.
+1. O usuário informa objetivo, prazo e disponibilidade.
 2. O Django autentica a requisição e valida os dados.
-3. O sistema verifica o consumo de tokens e reserva quota.
-4. O Gemini gera tarefas em formato JSON estruturado.
-5. O Pydantic valida e normaliza os dados retornados.
-6. O Django calcula datas conforme as horas disponíveis.
+3. O sistema verifica os limites de consumo e reserva quota.
+4. O Gemini gera tarefas em JSON estruturado.
+5. O Pydantic valida e normaliza a resposta.
+6. O Django calcula o cronograma conforme a disponibilidade.
 7. O consumo de tokens é registrado.
-8. O planejamento é retornado para revisão do usuário.
-
+8. O planejamento é retornado para revisão, sem persistência automática.
 
 ### Integração Google Gemini
 
 **Modelo configurado:** `gemini-3.5-flash-lite`
 
-A integração utiliza o SDK `google-genai`, com chave privada armazenada exclusivamente no backend.
+A integração utiliza o SDK `google-genai`, mantendo a chave privada exclusivamente no backend.
 
 Principais configurações:
 
 - Respostas estruturadas e validadas com Pydantic.
 - Normalização de prioridades, tamanhos e ordenação das tarefas.
-- Timeout configurável, com padrão de 20 segundos.
+- Timeout padrão de 20 segundos.
 - Uma tentativa por geração, sem retries automáticos.
-- Limite de entrada de 2.000 tokens.
-- Limite de saída configurado em 2.500 tokens.
+- Limite de entrada de 2.000 tokens e saída de 2.500 tokens.
 - Temperatura de geração de `0.3`.
-- Tratamento de respostas inválidas, indisponibilidade e timeout.
+- Tratamento de timeout, indisponibilidade e respostas inválidas.
 
 ### Controle de consumo e segurança
 
-O TaskPilot implementa mecanismos para reduzir o risco de consumo excessivo da API:
-
-- Bloqueio manual de geração com variável de ambiente `AI_ENABLED`.
-- Controle de quota diária por usuário e global.
-- Reserva atômica de tokens antes da geração.
-- Reconciliação do consumo após a resposta.
+- Autenticação JWT e isolamento dos dados por usuário.
+- Limites diários de tokens por usuário e globais.
+- Reserva atômica e reconciliação do consumo.
 - Expiração de reservas órfãs.
-- Histórico de consumo registrado no modelo `AIUsage`.
-- Proteção do endpoint com autenticação JWT.
-- Tratamento de erros HTTP sem exposição de informações internas.
+- Histórico de consumo no modelo `AIUsage`.
+- Bloqueio manual da IA por `AI_ENABLED`.
+- Tratamento de erros sem exposição de informações internas.
+
+Os limites internos complementam as restrições da API Google Gemini, que pode retornar `429 Too Many Requests` quando a quota é excedida.
 
 ---
 
-## Status atual
+## Testes automatizados
+
+O backend utiliza **pytest e Django TestCase** para validar autenticação, CRUD, persistência, permissões e integração com IA, utilizando um banco de testes isolado.
+
+### Como executar
+
+Na pasta `backend/`, com o ambiente virtual ativado:
+
+**Testes gratuitos (Gemini simulado):**
+
+```powershell
+.\run_tests.ps1
+```
+
+**Teste com Gemini real:**
+
+```powershell
+.\run_tests.ps1 -LiveGemini
+```
+
+O teste real consome quota da API e permanece desabilitado por padrão.
+
+### Relatórios
+
+Gerados em `backend/reports/`:
+
+| Arquivo | Descrição |
+|---|---|
+| `test-report.html` | Resultados e falhas dos testes |
+| `htmlcov/index.html` | Cobertura de código |
+| `coverage.xml` | Cobertura para ferramentas de CI |
+| `junit.xml` | Resultados estruturados |
+| `debug.log` | Logs e erros de execução |
+| `gemini-live.html` | Teste real do Gemini |
+
+Os relatórios são locais e não são versionados no Git.
+
+### Integração contínua
+
+O **GitHub Actions** executa automaticamente os testes gratuitos em pushes e pull requests nas branches configuradas, sem consumir tokens reais do Gemini.
+
+---
+
+## Status atual — Histórico de commits
 
 ### Commit 01 — Configuração do ambiente
 - Estrutura inicial do Django REST Framework.
-- Configuração de CORS, variáveis de ambiente e dependências.
-- Criação do aplicativo `core` e endpoint de status.
+- Configuração de CORS, dependências e variáveis de ambiente.
+- Implementação do endpoint de status.
 
 ### Commit 02 — Usuários e autenticação JWT
-- Implementação de cadastro, login e renovação de tokens.
-- Validação de e-mail, senha e credenciais.
-- Criação do endpoint de usuário autenticado e proteção de rotas.
+- Cadastro, login e renovação de tokens.
+- Validação de credenciais e proteção de rotas.
+- Endpoint de usuário autenticado.
 
 ### Commit 03 — Modelos de Projetos e Tarefas
-- Criação dos modelos `Project` e `Task` e seus relacionamentos.
-- Definição de status, prioridades e tamanhos.
-- Implementação de serializers, validações e Django Admin.
-- Migrações e testes de relacionamento realizados com sucesso.
+- Criação dos modelos `Project` e `Task`.
+- Definição de relacionamentos, status e prioridades.
+- Implementação de serializers, migrações e Django Admin.
 
 ### Commit 04 — APIs CRUD de Projetos e Tarefas
-- Implementação dos endpoints REST de projetos e tarefas.
-- Atualização de status, prioridades, prazos e estimativas.
+- Endpoints REST para gerenciamento de projetos e tarefas.
+- Atualização de status, prazos e estimativas.
 - Cálculo automático do progresso dos projetos.
-- Controle de acesso aos dados do usuário autenticado.
-- Testes de CRUD e permissões da API.
+- Controle de acesso e testes de permissões.
 
 ### Commit 05 — Integração Gemini e Planejamento Inteligente
-- Criação do aplicativo `ai` e integração com Google Gemini.
-- Implementação do endpoint autenticado de geração.
-- Criação de prompts com separação entre instruções e dados do usuário.
-- Validação e normalização das respostas JSON com Pydantic.
-- Cálculo de cronogramas conforme prazo e disponibilidade.
-- Implementação de controle de quotas e histórico de tokens.
-- Tratamento de timeout, falhas da API e respostas inválidas.
-- Geração de planejamentos sem persistência automática.
+- Integração com Google Gemini e endpoint de geração.
+- Validação de respostas JSON com Pydantic.
+- Geração de cronogramas conforme prazo e disponibilidade.
+- Controle de quotas, histórico de tokens e tratamento de erros.
+- Planejamentos retornados sem persistência automática.
 
----
-
-## Observações
-
-- O frontend React consome exclusivamente os endpoints do Django.
-- Chaves privadas e credenciais não devem ser versionadas.
-- O armazenamento de arquivos de mídia, caso implementado, deverá utilizar um serviço externo.
-- Para produção, está prevista a utilização de PostgreSQL persistente e deploy separado do frontend e backend.
+### Commit 06 — Testes automatizados e relatórios
+- Implementação de testes com pytest e IA simulada.
+- Testes de autenticação, CRUD, permissões e validações.
+- Script `run_tests.ps1` e relatórios HTML/XML.
+- Configuração de logs e cobertura de código.
+- Integração com GitHub Actions.
+- Teste real do Gemini executado com sucesso.

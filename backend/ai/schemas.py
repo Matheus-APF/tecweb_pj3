@@ -7,14 +7,27 @@ from pydantic import (
     model_validator,
 )
 
-# Normaliza strings antes de validar o Literal (ex: " High " -> "high")
-CleanLowerStr = Annotated[
-    str,
-    BeforeValidator(lambda v: v.strip().lower() if isinstance(v, str) else v),
+
+def clean_lower(value: object) -> object:
+    if isinstance(value, str):
+        return value.strip().lower()
+    return value
+
+
+def clean_upper(value: object) -> object:
+    if isinstance(value, str):
+        return value.strip().upper()
+    return value
+
+
+PriorityType = Annotated[
+    Literal["low", "medium", "high"],
+    BeforeValidator(clean_lower),
 ]
-CleanUpperStr = Annotated[
-    str,
-    BeforeValidator(lambda v: v.strip().upper() if isinstance(v, str) else v),
+
+SizeType = Annotated[
+    Literal["XS", "S", "M", "L", "XL"],
+    BeforeValidator(clean_upper),
 ]
 
 
@@ -23,8 +36,8 @@ class PlannedTask(BaseModel):
 
     title: str = Field(min_length=3, max_length=200)
     description: str = Field(default="", max_length=1500)
-    priority: Annotated[Literal["low", "medium", "high"], CleanLowerStr]
-    size: Annotated[Literal["XS", "S", "M", "L", "XL"], CleanUpperStr]
+    priority: PriorityType
+    size: SizeType
     estimated_hours: float = Field(gt=0, le=40)
     order: int = Field(ge=1, le=12)
 
@@ -41,6 +54,5 @@ class GeneratedPlan(BaseModel):
         if len(orders) != len(set(orders)):
             raise ValueError("As tarefas possuem valores de 'order' duplicados.")
 
-        # Garante que a lista siga sempre a ordem lógica para o cálculo de datas
         self.tasks.sort(key=lambda t: t.order)
         return self

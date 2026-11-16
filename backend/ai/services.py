@@ -48,25 +48,32 @@ def _is_timeout_exception(exc: Exception) -> bool:
     return "timeout" in exc_name or "timed out" in exc_msg or "deadline" in exc_msg
 
 
-def _clean_schema_for_gemini(schema: dict[str, Any]) -> dict[str, Any]:
+def _clean_schema_for_gemini(schema):
     """
-    Remove chaves de JSON Schema (como additionalProperties) que a API do Gemini
-    rejeita com 400 INVALID_ARGUMENT, mantendo a validação estrita no Pydantic local.
+    Remove propriedades incompatíveis com o Schema
+    do Gemini, preservando a validação Pydantic local.
     """
-    cleaned = {}
-    for key, value in schema.items():
-        if key == "additionalProperties":
-            continue
-        if isinstance(value, dict):
-            cleaned[key] = _clean_schema_for_gemini(value)
-        elif isinstance(value, list):
-            cleaned[key] = [
-                _clean_schema_for_gemini(item) if isinstance(item, dict) else item
-                for item in value
-            ]
-        else:
-            cleaned[key] = value
-    return cleaned
+
+    unsupported_keys = {
+        "additionalProperties",
+        "exclusiveMinimum",
+        "exclusiveMaximum",
+    }
+
+    if isinstance(schema, dict):
+        return {
+            key: _clean_schema_for_gemini(value)
+            for key, value in schema.items()
+            if key not in unsupported_keys
+        }
+
+    if isinstance(schema, list):
+        return [
+            _clean_schema_for_gemini(item)
+            for item in schema
+        ]
+
+    return schema
 
 
 @lru_cache(maxsize=1)
@@ -94,14 +101,13 @@ def count_plan_input_tokens(data: dict[str, Any]) -> int:
     """
     client = _get_gemini_client()
     model_name = os.getenv("GEMINI_MODEL", "gemini-3.5-flash-lite").strip()
+    prompt = build_plan_prompt(data)
+    text_to_count = f"{SYSTEM_INSTRUCTION}\n\n{prompt}"
 
     try:
         result = client.models.count_tokens(
             model=model_name,
-            contents=build_plan_prompt(data),
-            config=types.CountTokensConfig(
-                system_instruction=SYSTEM_INSTRUCTION,
-            ),
+            contents=text_to_count,
         )
     except errors.APIError as exc:
         logger.warning("Erro da API ao contar tokens (status=%s): %s", exc.code, exc.message)
@@ -126,7 +132,6 @@ def count_plan_input_tokens(data: dict[str, Any]) -> int:
         )
 
     return total_tokens
-
 
 def generate_plan(data: dict[str, Any]) -> tuple[GeneratedPlan, Any]:
     """
