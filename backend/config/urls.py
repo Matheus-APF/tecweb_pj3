@@ -26,4 +26,7 @@ urlpatterns = [
 
     # Rotas de autenticação
     path("api/auth/", include("users.urls")),
+
+    # Rotar Projetos
+    path("api/", include("projects.urls")),
 ]

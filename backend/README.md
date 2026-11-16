@@ -53,6 +53,34 @@ Endpoint de teste: http://localhost:8000/api/status/
 }
 ```
 
+## Endpoints disponíveis
+
+### Status da API
+- `GET /api/status/` — Verificar status da API.
+
+### Autenticação
+- `POST /api/auth/register/` — Cadastrar usuário.
+- `POST /api/auth/login/` — Realizar login e obter tokens JWT.
+- `POST /api/auth/refresh/` — Renovar token de acesso.
+- `GET /api/auth/me/` — Consultar usuário autenticado.
+
+### Projetos
+- `GET /api/projects/` — Listar projetos do usuário autenticado.
+- `POST /api/projects/` — Criar novo projeto.
+- `GET /api/projects/{id}/` — Consultar detalhes de um projeto.
+- `PATCH /api/projects/{id}/` — Atualizar informações do projeto.
+- `DELETE /api/projects/{id}/` — Excluir projeto e suas tarefas.
+
+### Tarefas
+- `GET /api/projects/{id}/tasks/` — Listar tarefas de um projeto.
+- `POST /api/projects/{id}/tasks/` — Criar tarefa vinculada ao projeto.
+- `GET /api/tasks/{id}/` — Consultar detalhes de uma tarefa.
+- `PATCH /api/tasks/{id}/` — Atualizar tarefa, incluindo status, prioridade e prazo.
+- `DELETE /api/tasks/{id}/` — Excluir tarefa.
+
+> **Autenticação:** Todos os endpoints de projetos e tarefas exigem token JWT no cabeçalho `Authorization: Bearer <access_token>`. Cada usuário possui acesso somente aos próprios projetos e tarefas.
+
+
 ## Status atual
 
 ### Commit 01 — Configuração do ambiente
@@ -69,13 +97,6 @@ Endpoint de teste: http://localhost:8000/api/status/
 - Criação do endpoint protegido para consulta do usuário autenticado.
 - Configuração de permissões e proteção dos endpoints.
 
-**Endpoints disponíveis:**
-- `GET /api/status/` — Verificar status da API.
-- `POST /api/auth/register/` — Cadastrar usuário.
-- `POST /api/auth/login/` — Realizar login e obter tokens JWT.
-- `POST /api/auth/refresh/` — Renovar token de acesso.
-- `GET /api/auth/me/` — Consultar usuário autenticado.
-
 ### Commit 03 — Modelos de Projetos e Tarefas
 - Criação do aplicativo `projects` e registro no Django.
 - Implementação dos modelos `Project` e `Task`, com relacionamento entre usuários, projetos e tarefas.
@@ -84,3 +105,13 @@ Endpoint de teste: http://localhost:8000/api/status/
 - Registro dos modelos no Django Admin.
 - Criação e aplicação das migrações no banco de dados.
 - Testes de criação e relacionamento dos modelos realizados com sucesso pelo Django Shell.
+
+### Commit 04 — APIs CRUD de Projetos e Tarefas
+- Implementação dos endpoints REST para criação, listagem, consulta, edição e exclusão de projetos.
+- Implementação do CRUD de tarefas vinculadas aos projetos.
+- Gerenciamento dos status `To Do`, `Doing` e `Feito`.
+- Validação de prioridades, tamanhos, prazos e estimativas de horas.
+- Cálculo automático do progresso e quantidade de tarefas por projeto.
+- Proteção dos endpoints com autenticação JWT.
+- Restrição de acesso aos projetos e tarefas do usuário autenticado.
+- Testes das operações CRUD, validações e permissões da API.
