@@ -292,3 +292,143 @@
     flex-direction: column;
   }
 }
+
+.kanban-tarefa-titulo,
+.backlog-tarefa-link {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #1b2d49;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+  text-align: left;
+}
+
+.kanban-tarefa-titulo:hover,
+.backlog-tarefa-link:hover {
+  color: #2467cf;
+  text-decoration: underline;
+}
+
+.drawer-fundo {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: flex-end;
+  background: #10233d80;
+}
+
+.drawer-tarefa {
+  width: min(100%, 520px);
+  height: 100%;
+  overflow-y: auto;
+  padding: 26px;
+  background: #fff;
+  box-shadow: -10px 0 30px #10233d20;
+}
+
+.drawer-cabecalho {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 22px;
+}
+
+.drawer-cabecalho h2 {
+  margin: 0;
+  color: #1b2d49;
+}
+
+.drawer-fechar {
+  width: 38px;
+  height: 38px;
+  border: 0;
+  border-radius: 8px;
+  background: #f3f6fb;
+  color: #536780;
+  cursor: pointer;
+}
+
+.drawer-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.drawer-form label {
+  margin-top: 8px;
+  color: #263b59;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.drawer-form input,
+.drawer-form textarea,
+.drawer-form select {
+  width: 100%;
+  min-height: 42px;
+  padding: 10px 12px;
+  border: 1px solid #cbd9ea;
+  border-radius: 7px;
+  background: #fff;
+  color: #1b2d49;
+  font: inherit;
+}
+
+.drawer-form textarea {
+  resize: vertical;
+}
+
+.drawer-campos-linha {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.drawer-campos-linha > div {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.drawer-salvar,
+.drawer-excluir {
+  min-height: 44px;
+  margin-top: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+}
+
+.drawer-salvar {
+  border: 0;
+  background: #2467cf;
+  color: #fff;
+}
+
+.drawer-excluir {
+  border: 1px solid #e3b4b4;
+  background: #fff;
+  color: #a83232;
+}
+
+.drawer-salvar:disabled,
+.drawer-excluir:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
+.drawer-erro {
+  margin: 8px 0 0;
+  color: #a83232;
+}
+
+@media (max-width: 560px) {
+  .drawer-tarefa {
+    padding: 20px 16px;
+  }
+}

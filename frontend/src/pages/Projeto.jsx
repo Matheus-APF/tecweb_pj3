@@ -22,6 +22,9 @@ function Projeto() {
   const [filtroStatus, setFiltroStatus] = useState("todos");
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
+  const [tarefaSelecionada, setTarefaSelecionada] = useState(null);
+  const [salvandoTarefa, setSalvandoTarefa] = useState(false);
+  const [erroPainel, setErroPainel] = useState("");
 
   useEffect(() => {
     let ativo = true;
@@ -117,6 +120,112 @@ function Projeto() {
     if (tarefa) moverTarefa(tarefa, status);
   }
 
+  function abrirDetalhes(tarefa) {
+    setErroPainel("");
+    setTarefaSelecionada({ ...tarefa });
+  }
+
+  function atualizarDetalhe(event) {
+    const { name, value } = event.target;
+
+    setTarefaSelecionada((atual) => ({
+      ...atual,
+      [name]: value,
+    }));
+  }
+
+  async function salvarDetalhes(event) {
+    event.preventDefault();
+    setErroPainel("");
+
+    if (!tarefaSelecionada.title.trim()) {
+      setErroPainel("O título da tarefa não pode ficar vazio.");
+      return;
+    }
+
+    const token = localStorage.getItem("taskpilot_access");
+
+    if (!token) {
+      setErroPainel("Você precisa estar logada para salvar alterações.");
+      return;
+    }
+
+    setSalvandoTarefa(true);
+
+    try {
+      const resposta = await api.patch(
+        `/api/tasks/${tarefaSelecionada.id}/`,
+        {
+          title: tarefaSelecionada.title,
+          description: tarefaSelecionada.description || "",
+          status: tarefaSelecionada.status,
+          priority: tarefaSelecionada.priority,
+          size: tarefaSelecionada.size,
+          estimated_hours:
+            tarefaSelecionada.estimated_hours === "" ||
+            tarefaSelecionada.estimated_hours === null
+              ? null
+              : Number(tarefaSelecionada.estimated_hours),
+          due_date: tarefaSelecionada.due_date || null,
+          notes: tarefaSelecionada.notes || "",
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      setTarefas((atuais) =>
+        atuais.map((tarefa) =>
+          tarefa.id === resposta.data.id ? resposta.data : tarefa
+        )
+      );
+
+      setTarefaSelecionada(null);
+    } catch (erroApi) {
+      setErroPainel(
+        erroApi.response?.data?.detail || "Não foi possível salvar a tarefa."
+      );
+    } finally {
+      setSalvandoTarefa(false);
+    }
+  }
+
+  async function excluirTarefa() {
+    const confirmou = window.confirm(
+      "Tem certeza que deseja excluir esta tarefa?"
+    );
+
+    if (!confirmou) return;
+
+    const token = localStorage.getItem("taskpilot_access");
+
+    if (!token) {
+      setErroPainel("Você precisa estar logada para excluir tarefas.");
+      return;
+    }
+
+    setSalvandoTarefa(true);
+    setErroPainel("");
+
+    try {
+      await api.delete(`/api/tasks/${tarefaSelecionada.id}/`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      setTarefas((atuais) =>
+        atuais.filter((tarefa) => tarefa.id !== tarefaSelecionada.id)
+      );
+
+      setTarefaSelecionada(null);
+    } catch (erroApi) {
+      setErroPainel(
+        erroApi.response?.data?.detail || "Não foi possível excluir a tarefa."
+      );
+    } finally {
+      setSalvandoTarefa(false);
+    }
+  }
+
   const tarefasFiltradas = tarefas.filter((tarefa) => {
     const correspondeBusca = tarefa.title
       .toLowerCase()
@@ -159,6 +268,7 @@ function Projeto() {
             <h1>{projeto.title}</h1>
             {projeto.description && <p>{projeto.description}</p>}
           </div>
+
           <div className="projeto-contagem">
             {tarefas.length} {tarefas.length === 1 ? "tarefa" : "tarefas"}
           </div>
@@ -169,6 +279,7 @@ function Projeto() {
             <span>Progresso</span>
             <strong>{projeto.progress ?? 0}%</strong>
           </div>
+
           <div className="progresso-trilho">
             <span style={{ width: `${projeto.progress ?? 0}%` }} />
           </div>
@@ -181,6 +292,7 @@ function Projeto() {
           >
             <i className="bi bi-kanban" /> Quadro
           </button>
+
           <button
             className={view === "backlog" ? "ativa" : ""}
             onClick={() => trocarVisualizacao("backlog")}
@@ -233,8 +345,16 @@ function Projeto() {
                           )
                         }
                       >
-                        <strong>{tarefa.title}</strong>
+                        <button
+                          className="kanban-tarefa-titulo"
+                          type="button"
+                          onClick={() => abrirDetalhes(tarefa)}
+                        >
+                          {tarefa.title}
+                        </button>
+
                         {tarefa.description && <p>{tarefa.description}</p>}
+
                         <div className="kanban-meta">
                           <span>{tarefa.priority}</span>
                           {tarefa.due_date && <span>{tarefa.due_date}</span>}
@@ -280,10 +400,19 @@ function Projeto() {
                       <th>Prazo</th>
                     </tr>
                   </thead>
+
                   <tbody>
                     {tarefasFiltradas.map((tarefa) => (
                       <tr key={tarefa.id}>
-                        <td>{tarefa.title}</td>
+                        <td>
+                          <button
+                            className="backlog-tarefa-link"
+                            type="button"
+                            onClick={() => abrirDetalhes(tarefa)}
+                          >
+                            {tarefa.title}
+                          </button>
+                        </td>
                         <td>{nomesStatus[tarefa.status]}</td>
                         <td>{tarefa.priority}</td>
                         <td>{tarefa.due_date || "—"}</td>
@@ -294,6 +423,158 @@ function Projeto() {
               </div>
             )}
           </section>
+        )}
+
+        {tarefaSelecionada && (
+          <div
+            className="drawer-fundo"
+            onClick={() => setTarefaSelecionada(null)}
+          >
+            <aside
+              className="drawer-tarefa"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="drawer-titulo"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <header className="drawer-cabecalho">
+                <h2 id="drawer-titulo">Detalhes da tarefa</h2>
+
+                <button
+                  type="button"
+                  className="drawer-fechar"
+                  onClick={() => setTarefaSelecionada(null)}
+                  aria-label="Fechar painel"
+                >
+                  <i className="bi bi-x-lg" />
+                </button>
+              </header>
+
+              <form className="drawer-form" onSubmit={salvarDetalhes}>
+                <label htmlFor="task-title">Título</label>
+                <input
+                  id="task-title"
+                  name="title"
+                  value={tarefaSelecionada.title}
+                  onChange={atualizarDetalhe}
+                  maxLength={200}
+                  required
+                />
+
+                <label htmlFor="task-description">Descrição</label>
+                <textarea
+                  id="task-description"
+                  name="description"
+                  value={tarefaSelecionada.description || ""}
+                  onChange={atualizarDetalhe}
+                  rows={3}
+                />
+
+                <div className="drawer-campos-linha">
+                  <div>
+                    <label htmlFor="task-status">Status</label>
+                    <select
+                      id="task-status"
+                      name="status"
+                      value={tarefaSelecionada.status}
+                      onChange={atualizarDetalhe}
+                    >
+                      <option value="todo">To Do</option>
+                      <option value="doing">Doing</option>
+                      <option value="done">Feito</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label htmlFor="task-priority">Prioridade</label>
+                    <select
+                      id="task-priority"
+                      name="priority"
+                      value={tarefaSelecionada.priority}
+                      onChange={atualizarDetalhe}
+                    >
+                      <option value="low">Baixa</option>
+                      <option value="medium">Média</option>
+                      <option value="high">Alta</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="drawer-campos-linha">
+                  <div>
+                    <label htmlFor="task-size">Tamanho</label>
+                    <select
+                      id="task-size"
+                      name="size"
+                      value={tarefaSelecionada.size}
+                      onChange={atualizarDetalhe}
+                    >
+                      <option value="XS">XS</option>
+                      <option value="S">S</option>
+                      <option value="M">M</option>
+                      <option value="L">L</option>
+                      <option value="XL">XL</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label htmlFor="task-hours">Estimativa em horas</label>
+                    <input
+                      id="task-hours"
+                      name="estimated_hours"
+                      type="number"
+                      min="0"
+                      step="0.5"
+                      value={tarefaSelecionada.estimated_hours ?? ""}
+                      onChange={atualizarDetalhe}
+                    />
+                  </div>
+                </div>
+
+                <label htmlFor="task-deadline">Prazo</label>
+                <input
+                  id="task-deadline"
+                  name="due_date"
+                  type="date"
+                  value={tarefaSelecionada.due_date || ""}
+                  onChange={atualizarDetalhe}
+                />
+
+                <label htmlFor="task-notes">Anotações</label>
+                <textarea
+                  id="task-notes"
+                  name="notes"
+                  value={tarefaSelecionada.notes || ""}
+                  onChange={atualizarDetalhe}
+                  rows={5}
+                  placeholder="Adicione observações sobre esta tarefa..."
+                />
+
+                {erroPainel && (
+                  <p className="drawer-erro" role="alert">
+                    {erroPainel}
+                  </p>
+                )}
+
+                <button
+                  className="drawer-salvar"
+                  type="submit"
+                  disabled={salvandoTarefa}
+                >
+                  {salvandoTarefa ? "Salvando..." : "Salvar alterações"}
+                </button>
+
+                <button
+                  className="drawer-excluir"
+                  type="button"
+                  onClick={excluirTarefa}
+                  disabled={salvandoTarefa}
+                >
+                  Excluir tarefa
+                </button>
+              </form>
+            </aside>
+          </div>
         )}
       </section>
     </main>
