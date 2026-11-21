@@ -99,7 +99,7 @@ function PreviaPlano() {
       }
 
       sessionStorage.removeItem("taskpilot_plan_preview");
-      setSalvo(true);
+      navigate(`/projetos/${projetoId}`);
     } catch (error) {
       setErro(
         error.response?.data?.detail ||
