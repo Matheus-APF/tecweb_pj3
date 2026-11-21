@@ -74,14 +74,18 @@ function NovoObjetivo() {
         }
       );
 
-      sessionStorage.setItem(
-        "taskpilot_plan_preview",
-        JSON.stringify(resposta.data)
-      );
+        sessionStorage.setItem(
+    "taskpilot_plan_preview",
+    JSON.stringify({
+        plan: resposta.data,
+        objective: {
+        ...formulario,
+        daily_hours: Number(formulario.daily_hours),
+        },
+    })
+    );
 
-      setMensagemSucesso(
-        `Plano gerado com ${resposta.data.tasks.length} tarefas! Na próxima etapa, vamos montar a tela de prévia.`
-      );
+    navigate("/objetivos/previa");
     } catch (erro) {
       const detalhe = erro.response?.data?.detail;
 
