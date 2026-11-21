@@ -1,16 +1,15 @@
-import { useEffect, useState } from "react";
-import api from "./services/api";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import NovoObjetivo from "./pages/NovoObjetivo";
 
 function App() {
-  const [status, setStatus] = useState("Carregando...");
-
-  useEffect(() => {
-    api.get("/api/status/")
-      .then(res => setStatus(res.data.status))
-      .catch(() => setStatus("Erro na conexão"));
-  }, []);
-
-  return <h1>TaskPilot — API: {status}</h1>;
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Navigate to="/objetivos/novo" replace />} />
+        <Route path="/objetivos/novo" element={<NovoObjetivo />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
 export default App;
