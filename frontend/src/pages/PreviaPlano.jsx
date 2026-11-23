@@ -1,7 +1,17 @@
-import { useState } from "react";
+
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 import "./PreviaPlano.css";
+
+const CORES_PROJETO = [
+  "#567565",
+  "#D98267",
+  "#4777B9",
+  "#C49A55",
+  "#8B789F",
+  "#6E9290",
+];
 
 function lerPreviaSalva() {
   try {
@@ -18,6 +28,42 @@ function PreviaPlano() {
   const [erro, setErro] = useState("");
   const [salvando, setSalvando] = useState(false);
   const [salvo, setSalvo] = useState(false);
+  const [corProjeto, setCorProjeto] = useState(CORES_PROJETO[0]);
+
+  useEffect(() => {
+    async function sugerirCor() {
+      const token = localStorage.getItem("taskpilot_access");
+
+      try {
+        const resposta = await api.get("/api/projects/", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const projetos = Array.isArray(resposta.data)
+          ? resposta.data
+          : resposta.data.results || [];
+
+        const coresUsadas = projetos.map((projeto) =>
+          projeto.color?.toLowerCase()
+        );
+
+        const corLivre = CORES_PROJETO.find(
+          (cor) => !coresUsadas.includes(cor.toLowerCase())
+        );
+
+        setCorProjeto(
+          corLivre ||
+            CORES_PROJETO[projetos.length % CORES_PROJETO.length]
+        );
+      } catch {
+        setCorProjeto(CORES_PROJETO[0]);
+      }
+    }
+
+    sugerirCor();
+  }, []);
 
   function atualizarTarefa(indice, campo, valor) {
     setTarefas((atuais) =>
@@ -56,14 +102,20 @@ function PreviaPlano() {
       return;
     }
 
-    if (tarefas.length === 0 || tarefas.some((tarefa) => !tarefa.title.trim())) {
+    if (
+      tarefas.length === 0 ||
+      tarefas.some((tarefa) => !tarefa.title.trim())
+    ) {
       setErro("Adicione pelo menos uma tarefa e preencha o título de todas.");
       return;
     }
 
     setSalvando(true);
+
     const config = {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     };
 
     try {
@@ -72,7 +124,7 @@ function PreviaPlano() {
         {
           title: previa.plan.title,
           description: previa.objective.description,
-          color: "#2563EB",
+          color: corProjeto,
           due_date: previa.objective.deadline,
           notes: "",
         },
@@ -115,7 +167,9 @@ function PreviaPlano() {
       <main className="previa-page">
         <section className="previa-vazia">
           <h1>Nenhum plano para revisar</h1>
-          <p>Gere um plano primeiro para poder conferir e salvar as tarefas.</p>
+          <p>
+            Gere um plano primeiro para poder conferir e salvar as tarefas.
+          </p>
           <button onClick={() => navigate("/objetivos/novo")}>
             Voltar para o objetivo
           </button>
@@ -133,26 +187,58 @@ function PreviaPlano() {
         >
           <i className="bi bi-arrow-left" /> Voltar
         </button>
+
         <strong>TaskPilot</strong>
         <span>Prévia do plano</span>
       </header>
 
       <section className="previa-container">
         <p className="previa-etiqueta">PLANO SUGERIDO</p>
+
         <h1>{previa.plan.title}</h1>
+
         <p className="previa-descricao">
           Revise as tarefas antes de salvar o projeto.
         </p>
 
         <div className="previa-resumo">
           <span>
-            <i className="bi bi-calendar3" /> Prazo:{" "}
-            {previa.objective.deadline}
+            <i className="bi bi-calendar3" />
+            Prazo: {previa.objective.deadline}
           </span>
+
           <span>
-            <i className="bi bi-clock" />{" "}
+            <i className="bi bi-clock" />
             {previa.objective.daily_hours}h disponíveis por dia
           </span>
+        </div>
+
+        <div className="previa-cor">
+          <div className="previa-cor-info">
+            <strong>Escolha uma cor para seu projeto</strong>
+            <span>
+              Ela vai identificar seu projeto e suas tarefas.
+            </span>
+          </div>
+
+          <div className="previa-paleta">
+            {CORES_PROJETO.map((cor) => (
+              <button
+                key={cor}
+                type="button"
+                className={corProjeto === cor ? "selecionada" : ""}
+                style={{ backgroundColor: cor }}
+                onClick={() => setCorProjeto(cor)}
+                aria-label={`Selecionar cor ${cor}`}
+                aria-pressed={corProjeto === cor}
+                title={`Selecionar cor ${cor}`}
+              >
+                {corProjeto === cor && (
+                  <i className="bi bi-check2"></i>
+                )}
+              </button>
+            ))}
+          </div>
         </div>
 
         <div className="previa-lista">
@@ -162,6 +248,7 @@ function PreviaPlano() {
                 <span className="previa-numero">
                   {String(indice + 1).padStart(2, "0")}
                 </span>
+
                 <button
                   className="remover-tarefa"
                   type="button"
@@ -173,7 +260,10 @@ function PreviaPlano() {
                 </button>
               </div>
 
-              <label htmlFor={`titulo-${indice}`}>Tarefa</label>
+              <label htmlFor={`titulo-${indice}`}>
+                Tarefa
+              </label>
+
               <input
                 id={`titulo-${indice}`}
                 value={tarefa.title}
@@ -183,12 +273,19 @@ function PreviaPlano() {
                 maxLength={200}
               />
 
-              <label htmlFor={`descricao-${indice}`}>Descrição</label>
+              <label htmlFor={`descricao-${indice}`}>
+                Descrição
+              </label>
+
               <textarea
                 id={`descricao-${indice}`}
                 value={tarefa.description || ""}
                 onChange={(event) =>
-                  atualizarTarefa(indice, "description", event.target.value)
+                  atualizarTarefa(
+                    indice,
+                    "description",
+                    event.target.value
+                  )
                 }
                 rows={2}
                 maxLength={1500}
@@ -198,9 +295,13 @@ function PreviaPlano() {
                 <span>
                   <i className="bi bi-clock" /> {tarefa.estimated_hours}h
                 </span>
+
                 <span>Prioridade: {tarefa.priority}</span>
                 <span>Tamanho: {tarefa.size}</span>
-                {tarefa.due_date && <span>Prazo: {tarefa.due_date}</span>}
+
+                {tarefa.due_date && (
+                  <span>Prazo: {tarefa.due_date}</span>
+                )}
               </div>
             </article>
           ))}
@@ -215,6 +316,7 @@ function PreviaPlano() {
         </button>
 
         {erro && <p className="previa-erro">{erro}</p>}
+
         {salvo && (
           <p className="previa-sucesso">
             Projeto e tarefas salvos com sucesso!
@@ -227,7 +329,11 @@ function PreviaPlano() {
           onClick={confirmarPlano}
           disabled={salvando || salvo}
         >
-          {salvando ? "Salvando..." : salvo ? "Projeto salvo" : "Salvar projeto e tarefas"}
+          {salvando
+            ? "Salvando..."
+            : salvo
+            ? "Projeto salvo"
+            : "Salvar projeto e tarefas"}
         </button>
       </section>
     </main>
