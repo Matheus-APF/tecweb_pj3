@@ -300,3 +300,87 @@
     display: none;
   }
 }
+.main-projetos-inativos {
+  margin-top: 55px;
+}
+
+.main-status-button {
+  padding: 9px 14px;
+  border: 1px solid var(--tp-line);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--tp-sage);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.main-status-button:hover:not(:disabled) {
+  background: #e7eee6;
+}
+
+.main-status-button:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+
+.main-projeto-detalhes a {
+  margin-right: auto;
+}
+.main-projeto-cores {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.main-projeto-cores > span {
+  color: var(--tp-muted);
+  font-size: 0.85rem;
+}
+
+.main-projeto-paleta {
+  display: flex;
+  gap: 9px;
+}
+
+.main-projeto-paleta button {
+  width: 21px;
+  height: 21px;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.main-projeto-paleta button.selecionada {
+  outline: 2px solid var(--tp-ink);
+  outline-offset: 3px;
+}
+
+.main-projeto-paleta button:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+.main-resumo {
+  margin-bottom: 36px;
+}
+
+.main-projeto-trigger {
+  padding: 14px 18px;
+}
+
+.main-projeto-cor {
+  height: 30px;
+}
+
+.main-projeto-detalhes {
+  padding: 14px 18px 16px 47px;
+}
+
+.main-kanban {
+  margin-top: 42px;
+}
+
+.main-projetos-inativos {
+  margin-top: 36px;
+}

@@ -4,11 +4,11 @@ from django.db import models
 
 class Project(models.Model):
     """Representa um projeto pertencente a um usuário."""
-
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="projects")  # Dono do projeto
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
-    color = models.CharField(max_length=7, default="#2563EB")       # Código hexadecimal para identificação visual
+    color = models.CharField(max_length=7, default="#2563EB")
+    is_active = models.BooleanField(default=True)       # Código hexadecimal para identificação visual
     due_date = models.DateField(null=True, blank=True)              # Prazo opcional de entrega
     notes = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)            # Preenchido apenas na criação
