@@ -1,0 +1,139 @@
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 20px;
+  background: var(--tp-paper);
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 460px;
+  padding: 42px;
+  background: var(--tp-surface);
+  border: 1px solid var(--tp-line);
+  border-radius: 9px;
+}
+
+.auth-logo {
+  display: inline-block;
+  margin-bottom: 36px;
+  color: var(--tp-ink);
+  font-family: Georgia, serif;
+  font-size: 1.8rem;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.auth-logo span {
+  color: var(--tp-terracotta);
+}
+
+.auth-etiqueta {
+  color: var(--tp-sage);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.auth-card h1 {
+  margin: 12px 0 8px;
+  color: var(--tp-ink);
+  font-family: Georgia, serif;
+  font-size: 2.3rem;
+}
+
+.auth-card > p {
+  margin-bottom: 26px;
+  color: var(--tp-muted);
+  line-height: 1.6;
+}
+
+.auth-card form {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.auth-card label {
+  margin-top: 9px;
+  color: var(--tp-ink);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.auth-card input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--tp-line);
+  border-radius: 6px;
+  background: #fffefa;
+  color: var(--tp-ink);
+  outline: none;
+}
+
+.auth-card input:focus {
+  border-color: var(--tp-sage);
+  box-shadow: 0 0 0 3px #56756520;
+}
+
+.auth-card form button {
+  margin-top: 18px;
+  padding: 13px;
+  border: none;
+  border-radius: 6px;
+  background: var(--tp-blue);
+  color: white;
+  cursor: pointer;
+}
+
+.auth-card form button:hover:not(:disabled) {
+  background: #365f99;
+}
+
+.auth-card form button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.auth-erro,
+.auth-sucesso {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 6px;
+  font-size: 0.88rem;
+}
+
+.auth-erro {
+  background: #f8e9e4;
+  color: #a44c39;
+}
+
+.auth-sucesso {
+  background: #e7eee6;
+  color: var(--tp-sage);
+}
+
+.auth-alternativa {
+  margin-top: 25px;
+  color: var(--tp-muted);
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.auth-alternativa a {
+  color: var(--tp-blue);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.auth-alternativa a:hover {
+  color: var(--tp-terracotta);
+}
+
+@media (max-width: 480px) {
+  .auth-card {
+    padding: 28px 22px;
+  }
+}
