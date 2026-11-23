@@ -1,0 +1,32 @@
+.app-header {
+  height: 72px;
+  padding: 0 36px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--tp-surface);
+  border-bottom: 1px solid var(--tp-line);
+}
+
+.header-logo {
+  color: var(--tp-ink);
+  font-family: Georgia, serif;
+  font-size: 1.65rem;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.header-logo span {
+  color: var(--tp-terracotta);
+}
+
+.header-message {
+  color: var(--tp-muted);
+  font-size: 0.9rem;
+}
+
+@media (max-width: 600px) {
+  .app-header {
+    padding: 0 20px;
+  }
+}
