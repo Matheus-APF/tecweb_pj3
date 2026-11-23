@@ -1,12 +1,21 @@
 :root {
-  font-family: system-ui, "Segoe UI", Roboto, sans-serif;
+  font-family: "Segoe UI", system-ui, sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  font-weight: 400;
-  color: #1b2d49;
-  background: #f3f6fb;
+
+  --tp-paper: #F5F1E9;
+  --tp-surface: #FFFEFB;
+  --tp-ink: #26364A;
+  --tp-muted: #77786F;
+  --tp-sage: #567565;
+  --tp-terracotta: #D98267;
+  --tp-blue: #4777B9;
+  --tp-line: #E1DCCF;
+
+  color: var(--tp-ink);
+  background: var(--tp-paper);
 }
 
 * {
@@ -17,6 +26,7 @@ body {
   min-width: 320px;
   min-height: 100vh;
   margin: 0;
+  background: var(--tp-paper);
 }
 
 button,

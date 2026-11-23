@@ -1,0 +1,312 @@
+/* Identidade geral */
+
+.objetivo-page,
+.previa-page,
+.projeto-page {
+  background: var(--tp-paper);
+  color: var(--tp-ink);
+}
+
+/* Cabeçalhos */
+
+.objetivo-topbar,
+.previa-topbar,
+.projeto-topbar {
+  background: var(--tp-surface);
+  border-bottom: 1px solid var(--tp-line);
+}
+
+.topbar-titulo,
+.previa-topbar strong,
+.projeto-topbar strong {
+  color: var(--tp-ink);
+  font-family: Georgia, serif;
+}
+
+.topbar-titulo::after,
+.previa-topbar strong::after,
+.projeto-topbar strong::after {
+  content: ".";
+  color: var(--tp-terracotta);
+}
+
+.voltar-button,
+.previa-voltar,
+.projeto-voltar {
+  color: var(--tp-muted);
+}
+
+.voltar-button:hover {
+  color: var(--tp-terracotta);
+}
+
+/* Títulos */
+
+.objetivo-intro h1,
+.previa-container h1,
+.previa-vazia h1,
+.projeto-cabecalho h1,
+.projeto-vazio h2 {
+  color: var(--tp-ink);
+  font-family: Georgia, serif;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+
+.objetivo-etiqueta,
+.previa-etiqueta,
+.projeto-etiqueta {
+  color: var(--tp-terracotta);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+}
+
+.objetivo-intro p,
+.previa-descricao,
+.previa-vazia p,
+.projeto-cabecalho p {
+  color: var(--tp-muted);
+  line-height: 1.7;
+}
+
+/* Formulário */
+
+.objetivo-form {
+  background: var(--tp-surface);
+  border: 1px solid var(--tp-line);
+  border-radius: 11px;
+  box-shadow: none;
+}
+
+.objetivo-form label,
+.previa-tarefa label {
+  color: var(--tp-ink);
+}
+
+.objetivo-form input,
+.objetivo-form textarea,
+.objetivo-form select,
+.previa-tarefa input,
+.previa-tarefa textarea,
+.backlog-filtros input,
+.backlog-filtros select,
+.drawer-form input,
+.drawer-form textarea,
+.drawer-form select {
+  background: #fffefa;
+  border: 1px solid var(--tp-line);
+  border-radius: 6px;
+  color: var(--tp-ink);
+}
+
+.objetivo-form input:focus,
+.objetivo-form textarea:focus,
+.objetivo-form select:focus {
+  border-color: var(--tp-sage);
+  outline: 3px solid #56756520;
+}
+
+.campo-ajuda,
+.input-com-sufixo span,
+.aviso-ia {
+  color: var(--tp-muted);
+}
+
+/* Botões */
+
+.gerar-button,
+.confirmar-plano,
+.previa-vazia button,
+.drawer-salvar {
+  background: var(--tp-blue);
+  border-radius: 6px;
+  color: white;
+}
+
+.gerar-button {
+  align-self: flex-start;
+  min-width: 230px;
+  padding: 0 20px;
+}
+
+.gerar-button:hover:not(:disabled),
+.confirmar-plano:hover:not(:disabled),
+.drawer-salvar:hover:not(:disabled) {
+  background: #365f99;
+}
+
+.adicionar-tarefa {
+  border: 1px solid var(--tp-line);
+  background: transparent;
+  color: var(--tp-sage);
+}
+
+.adicionar-tarefa:hover {
+  background: #eaece5;
+}
+
+/* Prévia do plano */
+
+.previa-resumo span,
+.previa-detalhes span {
+  background: #f7f3eb;
+  border: 1px solid var(--tp-line);
+  border-radius: 6px;
+  color: var(--tp-muted);
+}
+
+.previa-tarefa,
+.previa-vazia {
+  background: var(--tp-surface);
+  border: 1px solid var(--tp-line);
+  border-radius: 9px;
+  box-shadow: none;
+}
+
+.previa-numero {
+  color: var(--tp-sage);
+}
+
+.previa-erro {
+  background: #f8e9e4;
+  color: #a44c39;
+}
+
+.previa-sucesso {
+  background: #e7eee6;
+  color: var(--tp-sage);
+}
+
+/* Projeto e Kanban */
+
+.projeto-contagem {
+  background: var(--tp-surface);
+  border-color: var(--tp-line);
+  color: var(--tp-muted);
+}
+
+.progresso-trilho {
+  background: #e7e0d4;
+}
+
+.progresso-trilho span {
+  background: var(--tp-sage);
+}
+
+.projeto-abas {
+  border-color: var(--tp-line);
+}
+
+.projeto-abas button.ativa {
+  border-bottom-color: var(--tp-terracotta);
+  color: var(--tp-terracotta);
+}
+
+.projeto-abas button {
+  color: var(--tp-muted);
+}
+
+.kanban-coluna {
+  border: 1px solid var(--tp-line);
+  border-radius: 9px;
+}
+
+.kanban-coluna:nth-child(1) {
+  background: #e9edf0;
+}
+
+.kanban-coluna:nth-child(2) {
+  background: #f4e8db;
+}
+
+.kanban-coluna:nth-child(3) {
+  background: #e6ece3;
+}
+
+.kanban-coluna > header {
+  color: var(--tp-ink);
+}
+
+.kanban-coluna > header span {
+  color: var(--tp-muted);
+}
+
+.kanban-tarefa {
+  background: var(--tp-surface);
+  border: 1px solid var(--tp-line);
+  border-radius: 7px;
+  box-shadow: none;
+}
+
+.kanban-tarefa strong,
+.kanban-tarefa-titulo,
+.backlog-tarefa-link {
+  color: var(--tp-ink);
+}
+
+.kanban-tarefa p,
+.kanban-meta {
+  color: var(--tp-muted);
+}
+
+.kanban-tarefa-titulo:hover,
+.backlog-tarefa-link:hover {
+  color: var(--tp-terracotta);
+}
+
+.tabela-responsiva,
+.backlog-vazio,
+.projeto-vazio,
+.projeto-estado {
+  background: var(--tp-surface);
+  border-color: var(--tp-line);
+  border-radius: 9px;
+}
+
+.backlog th,
+.backlog td {
+  border-bottom-color: var(--tp-line);
+}
+
+.backlog th {
+  color: var(--tp-muted);
+}
+
+.backlog td {
+  color: var(--tp-ink);
+}
+
+/* Painel de edição de tarefa */
+
+.drawer-tarefa {
+  background: var(--tp-surface);
+}
+
+.drawer-cabecalho h2 {
+  color: var(--tp-ink);
+  font-family: Georgia, serif;
+}
+
+.drawer-fechar {
+  background: var(--tp-paper);
+  color: var(--tp-ink);
+}
+
+.drawer-erro {
+  color: #a44c39;
+}
+
+/* Responsividade */
+
+@media (max-width: 560px) {
+  .gerar-button {
+    width: 100%;
+  }
+}
+
+/* Remove os cabeçalhos antigos das páginas */
+.objetivo-topbar,
+.previa-topbar,
+.projeto-topbar {
+  display: none !important;
+}
