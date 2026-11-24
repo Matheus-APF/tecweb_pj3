@@ -47,6 +47,16 @@ function Main() {
     carregarProjetos();
   }, []);
 
+  function atualizarProgressoProjeto(projetoId, progressoNovo) {
+    setProjetos((atuais) =>
+      atuais.map((projeto) =>
+        String(projeto.id) === String(projetoId)
+          ? { ...projeto, progress: progressoNovo }
+          : projeto
+      )
+    );
+  }
+
   function alternarProjeto(id) {
     setExpandidos((atuais) =>
       atuais.includes(id)
@@ -145,6 +155,7 @@ function Main() {
       <div className="main-lista">
         {lista.map((projeto) => {
           const expandido = expandidos.includes(projeto.id);
+          const progresso = projeto.progress || 0;
 
           return (
             <article
@@ -167,12 +178,12 @@ function Main() {
                 </span>
 
                 <span className="main-projeto-progresso">
-                  <span>{projeto.progress || 0}%</span>
+                  <span>{progresso}%</span>
 
                   <span className="main-barra">
                     <span
                       style={{
-                        width: `${projeto.progress || 0}%`,
+                        width: `${progresso}%`,
                       }}
                     ></span>
                   </span>
@@ -334,7 +345,10 @@ function Main() {
         {renderProjetos(projetosAtivos)}
       </section>
 
-      <MainKanban projetos={projetos} />
+      <MainKanban
+        projetos={projetos}
+        onProgressoAtualizado={atualizarProgressoProjeto}
+      />
 
       <section className="main-projetos main-projetos-inativos">
         <div className="main-section-title">

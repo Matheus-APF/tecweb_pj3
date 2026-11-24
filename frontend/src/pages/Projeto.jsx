@@ -226,6 +226,14 @@ function Projeto() {
     }
   }
 
+  const progressoCalculado = tarefas.length
+    ? Math.round(
+        (tarefas.filter((tarefa) => tarefa.status === "done").length /
+          tarefas.length) *
+          100
+      )
+    : 0;
+
   const tarefasFiltradas = tarefas.filter((tarefa) => {
     const correspondeBusca = tarefa.title
       .toLowerCase()
@@ -277,11 +285,11 @@ function Projeto() {
         <div className="progresso-area">
           <div className="progresso-texto">
             <span>Progresso</span>
-            <strong>{projeto.progress ?? 0}%</strong>
+            <strong>{progressoCalculado}%</strong>
           </div>
 
           <div className="progresso-trilho">
-            <span style={{ width: `${projeto.progress ?? 0}%` }} />
+            <span style={{ width: `${progressoCalculado}%` }} />
           </div>
         </div>
 

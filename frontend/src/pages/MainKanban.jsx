@@ -14,7 +14,7 @@ const nomesPrioridade = {
   high: "Alta",
 };
 
-function MainKanban({ projetos }) {
+function MainKanban({ projetos, onProgressoAtualizado }) {
   const [tarefas, setTarefas] = useState([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
@@ -58,6 +58,7 @@ function MainKanban({ projetos }) {
 
           return dados.map((tarefa) => ({
             ...tarefa,
+            project_id: projeto.id,
             project_title: projeto.title,
             project_color: projeto.color || "#567565",
           }));
@@ -88,7 +89,6 @@ function MainKanban({ projetos }) {
 
   function obterHoje() {
     const hoje = new Date();
-
     const ano = hoje.getFullYear();
     const mes = String(hoje.getMonth() + 1).padStart(2, "0");
     const dia = String(hoje.getDate()).padStart(2, "0");
@@ -112,47 +112,80 @@ function MainKanban({ projetos }) {
     return `${dia}/${mes}/${ano}`;
   }
 
+  function calcularProgresso(projetoId, listaTarefas) {
+    const tarefasDoProjeto = listaTarefas.filter(
+      (tarefa) => String(tarefa.project_id) === String(projetoId)
+    );
+
+    if (tarefasDoProjeto.length === 0) return 0;
+
+    const tarefasConcluidas = tarefasDoProjeto.filter(
+      (tarefa) => tarefa.status === "done"
+    ).length;
+
+    return Math.round(
+      (tarefasConcluidas / tarefasDoProjeto.length) * 100
+    );
+  }
+
   async function moverTarefa(tarefa, novoStatus) {
     if (tarefa.status === novoStatus) return;
 
     const token = localStorage.getItem("taskpilot_access");
     const statusAntigo = tarefa.status;
 
-    setErro("");
-    setAtualizando((atuais) => [...atuais, tarefa.id]);
-
-    setTarefas((atuais) =>
-        atuais.map((item) =>
-        item.id === tarefa.id
-            ? { ...item, status: novoStatus }
-            : item
-        )
+    const tarefasAtualizadas = tarefas.map((item) =>
+      item.id === tarefa.id
+        ? { ...item, status: novoStatus }
+        : item
     );
 
+    setErro("");
+    setAtualizando((atuais) => [...atuais, tarefa.id]);
+    setTarefas(tarefasAtualizadas);
+
+    const progressoNovo = calcularProgresso(
+      tarefa.project_id,
+      tarefasAtualizadas
+    );
+
+    onProgressoAtualizado?.(tarefa.project_id, progressoNovo);
+
     try {
-        await api.patch(
+      await api.patch(
         `/api/tasks/${tarefa.id}/`,
         { status: novoStatus },
         {
-            headers: { Authorization: `Bearer ${token}` },
+          headers: { Authorization: `Bearer ${token}` },
         }
-        );
+      );
     } catch {
-        setTarefas((atuais) =>
-        atuais.map((item) =>
-            item.id === tarefa.id
-            ? { ...item, status: statusAntigo }
-            : item
-        )
-        );
+      const tarefasRestauradas = tarefasAtualizadas.map((item) =>
+        item.id === tarefa.id
+          ? { ...item, status: statusAntigo }
+          : item
+      );
 
-        setErro("Não foi possível atualizar o status da tarefa.");
+      setTarefas(tarefasRestauradas);
+
+      const progressoRestaurado = calcularProgresso(
+        tarefa.project_id,
+        tarefasRestauradas
+      );
+
+      onProgressoAtualizado?.(
+        tarefa.project_id,
+        progressoRestaurado
+      );
+
+      setErro("Não foi possível atualizar o status da tarefa.");
     } finally {
-        setAtualizando((atuais) =>
+      setAtualizando((atuais) =>
         atuais.filter((id) => id !== tarefa.id)
-        );
+      );
     }
-    }
+  }
+
   function iniciarArraste(event, tarefa) {
     event.dataTransfer.setData("text/plain", String(tarefa.id));
     event.dataTransfer.effectAllowed = "move";
